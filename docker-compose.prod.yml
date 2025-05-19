@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - ./db/pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 1s
+      retries: 5
+  dbmate:
+    image: amacneil/dbmate:latest
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgres://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}?sslmode=disable"
+    volumes:
+      - ./db/migrations:/db/migrations
+      - ./db/schema.sql:/db/schema.sql
+    command: ["up"]
+  backend:
+    build: ./apps/backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      GIN_MODE: ${GIN_MODE}
+      BACKEND_PORT: ${BACKEND_PORT}
+      BACKEND_DATABASE_URL: "host=postgres user=${DB_USER} password=${DB_PASSWORD} dbname=${DB_NAME} port=5432 sslmode=disable"
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    # develop:
+    #   watch:
+    #     - action: rebuild
+    #       path: ./backend
+    #       target: /backend
