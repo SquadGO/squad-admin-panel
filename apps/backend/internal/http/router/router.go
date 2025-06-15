@@ -4,20 +4,21 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/SquadGO/squad-admin-panel/internal/http/handlers"
 	"github.com/SquadGO/squad-admin-panel/internal/http/middleware"
 	"github.com/SquadGO/squad-admin-panel/internal/service"
 	"github.com/gin-gonic/gin"
 )
 
-func New(s service.Service) *gin.Engine {
+func New(s *service.Service) *gin.Engine {
 	r := gin.New()
-	//handlers := handlers.NewHandlers(s)
+	h := handlers.NewHandlers(s)
 
 	r.Use(gin.Recovery())
 	r.Use(middleware.Logger())
 
-	// r.GET("/auth", handlers.UserHandlers.Auth)
-	// r.POST("/reg", handlers.UserHandlers.Reg)
+	r.GET("/auth", h.AuthHandler.Auth)
+	r.GET("/login", h.AuthHandler.Login)
 
 	r.NoRoute(func(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{

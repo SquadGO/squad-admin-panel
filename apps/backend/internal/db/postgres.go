@@ -4,22 +4,21 @@ import (
 	"context"
 	"os"
 
-	"github.com/SquadGO/squad-admin-panel/internal/sqlGen"
-	"github.com/jackc/pgx/v5"
+	"github.com/SquadGO/squad-admin-panel/internal/gen"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Storage struct {
-	conn    *pgx.Conn
-	Queries *sqlGen.Queries
+	Queries *gen.Queries
 }
 
 func New(ctx context.Context) (*Storage, error) {
-	conn, err := pgx.Connect(ctx, os.Getenv("BACKEND_DATABASE_URL"))
+	pool, err := pgxpool.New(context.Background(), os.Getenv("BACKEND_DATABASE_URL"))
 	if err != nil {
 		return nil, err
 	}
 
-	queries := sqlGen.New(conn)
+	queries := gen.New(pool)
 
 	return &Storage{Queries: queries}, nil
 }

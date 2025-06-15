@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/SquadGO/squad-admin-panel/internal/core"
 	"github.com/SquadGO/squad-admin-panel/internal/db"
 	"github.com/SquadGO/squad-admin-panel/internal/http/router"
 	"github.com/SquadGO/squad-admin-panel/internal/http/server"
@@ -16,12 +17,15 @@ func main() {
 
 	db, err := db.New(context.Background())
 	if err != nil {
-		slog.Error("Database", slog.Any("err", err))
+		slog.Error("Database init", slog.Any("err", err))
 		return
 	}
 
-	repo := service.NewService(db)
-	r := router.New(repo)
+	s := service.NewService(db)
+	r := router.New(s)
+
+	go core.NewRcon(s)
+	//go core.NewFTPLogs(s)
 
 	server.New(r)
 }

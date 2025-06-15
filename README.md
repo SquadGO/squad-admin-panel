@@ -1,5 +1,16 @@
 # Squad Admin Panel
 
+## Production
+
+DockerCompose: [Install](https://docs.docker.com/compose/install)
+
+```bash
+  # Use make OR command
+  docker-compose -f docker-compose.prod.yml up --build -d
+  # OR
+  make prod
+```
+
 ## Development
 
 golangci-lint: [Install](https://golangci-lint.run/welcome/install/) [IDE Integration](https://golangci-lint.run/welcome/integrations/)\
@@ -16,15 +27,4 @@ make: [MacOS](https://formulae.brew.sh/formula/make) [Windows](https://gnuwin32.
   make dev-compose
   make dev-apps # need wait for start compose, mb 30sec for first start!?
   # see makefile for all commands
-```
-
-## Production
-
-DockerCompose: [Install](https://docs.docker.com/compose/install)
-
-```bash
-  # Use make OR command
-  docker-compose -f docker-compose.prod.yml up --build -d
-  # OR
-  make prod
 ```
