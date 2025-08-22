@@ -23,6 +23,7 @@ CREATE TABLE logs (
     chat_type chat_type NULL,
     is_teamkill BOOLEAN NULL,
     message TEXT NULL,
+    weapon TEXT NULL,
     map TEXT NULL
 );
 

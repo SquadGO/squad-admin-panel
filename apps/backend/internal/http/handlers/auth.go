@@ -4,55 +4,60 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/SquadGO/squad-admin-panel/internal/http/helpers"
+	"github.com/SquadGO/squad-admin-panel/internal/models"
+	"github.com/SquadGO/squad-admin-panel/internal/service"
 	"github.com/gin-gonic/gin"
-	"github.com/yohcop/openid-go"
+	"github.com/markbates/goth/gothic"
 )
 
 type AuthHandler interface {
 	Auth(ctx *gin.Context)
-	Login(ctx *gin.Context)
+	AuthSuccess(ctx *gin.Context)
 }
 
-type authHandler struct{}
-
-var (
-	nonceStore     = openid.NewSimpleNonceStore()
-	discoveryCache = openid.NewSimpleDiscoveryCache()
-)
-
-func NewAuthHandler() AuthHandler {
-	return &authHandler{}
+type authHandler struct {
+	userService service.UserService
 }
 
-func (as *authHandler) Auth(ctx *gin.Context) {
-	w := ctx.Writer
-	r := ctx.Request
-	returnURL := "http://localhost:3001/login"
+func NewAuthHandler(userService service.UserService) AuthHandler {
+	return &authHandler{
+		userService: userService,
+	}
+}
 
-	authURL, err := openid.RedirectURL(
-		"https://steamcommunity.com/openid",
-		returnURL,
-		returnURL,
-	)
-	if err != nil {
-		http.Error(w, "Failed to generate Steam auth URL", http.StatusInternalServerError)
+func (a *authHandler) Auth(ctx *gin.Context) {
+	redirectUrl := ctx.Query("redirect_url")
+
+	if redirectUrl == "" {
+		helpers.JsonError(ctx, http.StatusBadRequest, "Missing redirect_url param")
 		return
 	}
 
-	http.Redirect(w, r, authURL, http.StatusFound)
+	ctx.SetCookie("redirect_url", redirectUrl, 300, "/", "", false, true)
+	gothic.BeginAuthHandler(ctx.Writer, ctx.Request)
 }
 
-func (as *authHandler) Login(ctx *gin.Context) {
-	w := ctx.Writer
-	r := ctx.Request
-
-	fullURL := "http://localhost:3001" + r.URL.String()
-	id, err := openid.Verify(fullURL, discoveryCache, nonceStore)
+func (a *authHandler) AuthSuccess(ctx *gin.Context) {
+	redirectUrl, err := ctx.Cookie("redirect_url")
 	if err != nil {
-		http.Error(w, "OpenID verification failed", http.StatusUnauthorized)
+		helpers.JsonError(ctx, http.StatusBadRequest, "Missing redirect_url param")
 		return
 	}
 
-	steamID := id[len("https://steamcommunity.com/openid/id/"):]
-	fmt.Fprintf(w, "User authenticated with SteamID: %s", steamID)
+	user, err := gothic.CompleteUserAuth(ctx.Writer, ctx.Request)
+	if err != nil {
+		helpers.JsonError(ctx, http.StatusForbidden, "Invalid steam")
+		return
+	}
+
+	token, err := helpers.GenerateJWTToken(user.NickName, user.AvatarURL, user.UserID)
+	if err != nil {
+		helpers.JsonError(ctx, http.StatusForbidden, "Failed generate token")
+		return
+	}
+
+	a.userService.CreateUser(ctx, models.CreateUser{SteamID: user.UserID, Name: user.NickName, Avatar: &user.AvatarURL})
+
+	ctx.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s?token=%s", redirectUrl, token))
 }

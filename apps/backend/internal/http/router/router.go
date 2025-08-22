@@ -17,8 +17,21 @@ func New(s *service.Service) *gin.Engine {
 	r.Use(gin.Recovery())
 	r.Use(middleware.Logger())
 
-	r.GET("/auth", h.AuthHandler.Auth)
-	r.GET("/login", h.AuthHandler.Login)
+	{
+		v1 := r.Group("api/v1")
+		{
+			authRouter := v1.Group("/auth")
+			authRouter.GET("/steam", h.AuthHandler.Auth)
+			authRouter.GET("/steam/success", h.AuthHandler.AuthSuccess)
+		}
+
+		{
+			protected := v1.Group("/")
+			protected.Use(middleware.JWTAuth())
+
+			protected.GET("/user/:id")
+		}
+	}
 
 	r.NoRoute(func(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{
@@ -28,20 +41,6 @@ func New(s *service.Service) *gin.Engine {
 			},
 		})
 	})
-
-	// r.GET("/user", h.UserHandlers.Get)
-	// r.POST("/auth", h.UserHandlers.Authorization)
-	// r.POST("/reg", h.UserHandlers.Registration)
-
-	// authorized := r.Group("/")
-	// authorized.Use(middleware.AuthRequired())
-	// {
-	// 	authorized.DELETE("/todo/:id", h.TodoHandlers.Delete)
-	// 	authorized.GET("/todo/:id", h.TodoHandlers.GetTodo)
-	// 	authorized.GET("/todos", h.TodoHandlers.GetTodos)
-	// 	authorized.POST("/todo", h.TodoHandlers.Create)
-	// 	authorized.PATCH("/todo", h.TodoHandlers.Update)
-	// }
 
 	return r
 }

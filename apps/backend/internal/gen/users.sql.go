@@ -10,7 +10,7 @@ import (
 )
 
 const getUser = `-- name: GetUser :one
-SELECT user_id, steam_id, name, avatar, created_at FROM users
+SELECT user_id, role_id, steam_id, name, avatar, created_at FROM users
 WHERE user_id = $1
 LIMIT 1
 `
@@ -20,6 +20,7 @@ func (q *Queries) GetUser(ctx context.Context, userID int32) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.UserID,
+		&i.RoleID,
 		&i.SteamID,
 		&i.Name,
 		&i.Avatar,

@@ -80,6 +80,7 @@ CREATE TABLE public.logs (
     chat_type public.chat_type,
     is_teamkill boolean,
     message text,
+    weapon text,
     map text
 );
 
@@ -138,6 +139,48 @@ ALTER SEQUENCE public.players_player_id_seq OWNED BY public.players.player_id;
 
 
 --
+-- Name: roles; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.roles (
+    role_id integer NOT NULL,
+    name character varying NOT NULL,
+    ban boolean NOT NULL,
+    kick boolean NOT NULL,
+    warn boolean NOT NULL,
+    disband boolean NOT NULL,
+    remove_player_squad boolean NOT NULL,
+    change_map boolean NOT NULL,
+    change_next_map boolean NOT NULL,
+    end_match boolean NOT NULL,
+    broadcast boolean NOT NULL,
+    force_player boolean NOT NULL,
+    flags boolean NOT NULL,
+    change_role boolean NOT NULL
+);
+
+
+--
+-- Name: roles_role_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.roles_role_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: roles_role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.roles_role_id_seq OWNED BY public.roles.role_id;
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -188,6 +231,7 @@ ALTER SEQUENCE public.servers_server_id_seq OWNED BY public.servers.server_id;
 
 CREATE TABLE public.users (
     user_id integer NOT NULL,
+    role_id integer DEFAULT 1,
     steam_id character varying(17) NOT NULL,
     name character varying(255) NOT NULL,
     avatar text,
@@ -234,6 +278,13 @@ ALTER TABLE ONLY public.logs ALTER COLUMN log_id SET DEFAULT nextval('public.log
 --
 
 ALTER TABLE ONLY public.players ALTER COLUMN player_id SET DEFAULT nextval('public.players_player_id_seq'::regclass);
+
+
+--
+-- Name: roles role_id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.roles ALTER COLUMN role_id SET DEFAULT nextval('public.roles_role_id_seq'::regclass);
 
 
 --
@@ -288,6 +339,22 @@ ALTER TABLE ONLY public.players
 
 ALTER TABLE ONLY public.players
     ADD CONSTRAINT players_steam_id_key UNIQUE (steam_id);
+
+
+--
+-- Name: roles roles_name_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.roles
+    ADD CONSTRAINT roles_name_key UNIQUE (name);
+
+
+--
+-- Name: roles roles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.roles
+    ADD CONSTRAINT roles_pkey PRIMARY KEY (role_id);
 
 
 --
@@ -395,6 +462,14 @@ ALTER TABLE ONLY public.logs
 
 
 --
+-- Name: users users_role_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_role_id_fkey FOREIGN KEY (role_id) REFERENCES public.roles(role_id);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -404,6 +479,7 @@ ALTER TABLE ONLY public.logs
 --
 
 INSERT INTO public.schema_migrations (version) VALUES
+    ('20250515001543'),
     ('20250519001544'),
     ('20250525160158'),
     ('20250525162512'),

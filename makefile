@@ -16,6 +16,10 @@ dev-apps:
 	BACKEND_DATABASE_URL="host=localhost user=${DB_USER} password=${DB_PASSWORD} dbname=${DB_NAME} port=5432 sslmode=disable" \
 	BACKEND_PORT=${BACKEND_PORT} \
 	GIN_MODE=${GIN_MODE} \
+	STEAM_KEY=${STEAM_KEY} \
+	CALLBACK_URL=${CALLBACK_URL} \
+	SESSION_SECRET=${SESSION_SECRET} \
+	JWT_SECRET=${JWT_SECRET} \
 	go run ./cmd/server/main.go
 
 sqlc-gen:

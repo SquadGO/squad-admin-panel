@@ -115,12 +115,15 @@ func NewRcon(s *service.Service) {
 			}
 		})
 
-		ticker := time.NewTicker(5 * time.Second)
+		ticker := time.NewTicker(1 * time.Second)
 		go func() {
 			for {
 				select {
 				case <-ticker.C:
 					r.Execute(rconEvents.LIST_PLAYERS)
+				default:
+					{
+					}
 				}
 			}
 		}()

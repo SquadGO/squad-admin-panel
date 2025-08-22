@@ -8,6 +8,6 @@ type handlers struct {
 
 func NewHandlers(s *service.Service) handlers {
 	return handlers{
-		AuthHandler: NewAuthHandler(),
+		AuthHandler: NewAuthHandler(s.UserService),
 	}
 }

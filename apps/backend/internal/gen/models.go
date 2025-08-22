@@ -81,6 +81,7 @@ type Log struct {
 	ChatType   NullChatType       `json:"chat_type"`
 	IsTeamkill *bool              `json:"is_teamkill"`
 	Message    *string            `json:"message"`
+	Weapon     *string            `json:"weapon"`
 	Map        *string            `json:"map"`
 }
 
@@ -91,6 +92,23 @@ type Player struct {
 	SteamID   string             `json:"steam_id"`
 	FirstSeen pgtype.Timestamptz `json:"first_seen"`
 	LastSeen  pgtype.Timestamptz `json:"last_seen"`
+}
+
+type Role struct {
+	RoleID            int32  `json:"role_id"`
+	Name              string `json:"name"`
+	Ban               bool   `json:"ban"`
+	Kick              bool   `json:"kick"`
+	Warn              bool   `json:"warn"`
+	Disband           bool   `json:"disband"`
+	RemovePlayerSquad bool   `json:"remove_player_squad"`
+	ChangeMap         bool   `json:"change_map"`
+	ChangeNextMap     bool   `json:"change_next_map"`
+	EndMatch          bool   `json:"end_match"`
+	Broadcast         bool   `json:"broadcast"`
+	ForcePlayer       bool   `json:"force_player"`
+	Flags             bool   `json:"flags"`
+	ChangeRole        bool   `json:"change_role"`
 }
 
 type SchemaMigration struct {
@@ -110,6 +128,7 @@ type Server struct {
 
 type User struct {
 	UserID    int32              `json:"user_id"`
+	RoleID    *int32             `json:"role_id"`
 	SteamID   string             `json:"steam_id"`
 	Name      string             `json:"name"`
 	Avatar    *string            `json:"avatar"`
