@@ -30,3 +30,8 @@ make dev-compose
 make dev-apps # need wait for start compose, mb 30sec for first start!?
 # see makefile for all commands
 ```
+
+```bash
+# create new migration
+dbmate new create_users_table
+```

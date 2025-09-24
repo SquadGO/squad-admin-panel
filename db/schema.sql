@@ -105,6 +105,44 @@ ALTER SEQUENCE public.logs_log_id_seq OWNED BY public.logs.log_id;
 
 
 --
+-- Name: maps; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.maps (
+    map_id bigint NOT NULL,
+    server_id integer,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    end_at timestamp with time zone,
+    map_name text NOT NULL,
+    winner_name text,
+    winner_team_id integer,
+    winner_tickets integer,
+    loser_name text,
+    loser_team_id integer,
+    loser_tickets integer
+);
+
+
+--
+-- Name: maps_map_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.maps_map_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: maps_map_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.maps_map_id_seq OWNED BY public.maps.map_id;
+
+
+--
 -- Name: players; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -274,6 +312,13 @@ ALTER TABLE ONLY public.logs ALTER COLUMN log_id SET DEFAULT nextval('public.log
 
 
 --
+-- Name: maps map_id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.maps ALTER COLUMN map_id SET DEFAULT nextval('public.maps_map_id_seq'::regclass);
+
+
+--
 -- Name: players player_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -315,6 +360,14 @@ ALTER TABLE ONLY public.bans
 
 ALTER TABLE ONLY public.logs
     ADD CONSTRAINT logs_pkey PRIMARY KEY (log_id);
+
+
+--
+-- Name: maps maps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.maps
+    ADD CONSTRAINT maps_pkey PRIMARY KEY (map_id);
 
 
 --
@@ -462,6 +515,14 @@ ALTER TABLE ONLY public.logs
 
 
 --
+-- Name: maps maps_server_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.maps
+    ADD CONSTRAINT maps_server_id_fkey FOREIGN KEY (server_id) REFERENCES public.servers(server_id);
+
+
+--
 -- Name: users users_role_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -484,4 +545,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20250525160158'),
     ('20250525162512'),
     ('20250525163527'),
-    ('20250525163550');
+    ('20250525163550'),
+    ('20250924163302');

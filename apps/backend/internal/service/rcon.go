@@ -26,15 +26,15 @@ func NewRconService(db *db.Storage, playerService PlayerService) RconService {
 
 func (r *rconService) UpdatePlayers(players rconTypes.Players) {
 	for _, player := range players {
-		findPlayer, err := r.db.Queries.GetPlayerBySteamID(context.Background(), player.SteamID)
+		findPlayer, err := r.playerService.GetPlayerBySteamID(context.Background(), player.SteamID)
 		if err != nil {
-			r.playerService.CreatePlayer(models.CreatePlayer{
+			r.playerService.CreatePlayer(context.Background(), models.CreatePlayer{
 				Name:    player.PlayerName,
 				EosID:   player.EosID,
 				SteamID: player.SteamID,
 			})
 		} else if findPlayer.Name != player.PlayerName {
-			r.playerService.UpdatePlayerName(player.PlayerName)
+			r.playerService.UpdatePlayerName(context.Background(), player.PlayerName)
 		}
 	}
 }

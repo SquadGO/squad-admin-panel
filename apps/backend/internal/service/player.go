@@ -10,10 +10,10 @@ import (
 )
 
 type PlayerService interface {
-	GetPlayerBySteamID(steamID string) (*gen.Player, error)
-	GetPlayerByEosID(eosID string) (*gen.Player, error)
-	CreatePlayer(player models.CreatePlayer) (int32, error)
-	UpdatePlayerName(name string) error
+	GetPlayerBySteamID(ctx context.Context, steamID string) (*gen.Player, error)
+	GetPlayerByEosID(ctx context.Context, eosID string) (*gen.Player, error)
+	CreatePlayer(ctx context.Context, player models.CreatePlayer) (int32, error)
+	UpdatePlayerName(ctx context.Context, name string) error
 }
 
 type playerService struct {
@@ -26,8 +26,8 @@ func NewPlayerService(db *db.Storage) PlayerService {
 	}
 }
 
-func (p *playerService) CreatePlayer(player models.CreatePlayer) (int32, error) {
-	id, err := p.db.Queries.InsertPlayer(context.Background(), gen.InsertPlayerParams{
+func (p *playerService) CreatePlayer(ctx context.Context, player models.CreatePlayer) (int32, error) {
+	id, err := p.db.Queries.InsertPlayer(ctx, gen.InsertPlayerParams{
 		Name:    player.Name,
 		EosID:   player.EosID,
 		SteamID: player.SteamID,
@@ -40,8 +40,8 @@ func (p *playerService) CreatePlayer(player models.CreatePlayer) (int32, error) 
 	return id, nil
 }
 
-func (p *playerService) UpdatePlayerName(name string) error {
-	err := p.db.Queries.UpdatePlayerName(context.Background(), name)
+func (p *playerService) UpdatePlayerName(ctx context.Context, name string) error {
+	err := p.db.Queries.UpdatePlayerName(ctx, name)
 
 	if err != nil {
 		return fmt.Errorf("Failed update player: %w", err)
@@ -50,8 +50,8 @@ func (p *playerService) UpdatePlayerName(name string) error {
 	return nil
 }
 
-func (p *playerService) GetPlayerBySteamID(steamID string) (*gen.Player, error) {
-	player, err := p.db.Queries.GetPlayerBySteamID(context.Background(), steamID)
+func (p *playerService) GetPlayerBySteamID(ctx context.Context, steamID string) (*gen.Player, error) {
+	player, err := p.db.Queries.GetPlayerBySteamID(ctx, steamID)
 
 	if err != nil {
 		return nil, fmt.Errorf("User not found: %w", err)
@@ -60,8 +60,8 @@ func (p *playerService) GetPlayerBySteamID(steamID string) (*gen.Player, error) 
 	return &player, nil
 }
 
-func (p *playerService) GetPlayerByEosID(eosID string) (*gen.Player, error) {
-	player, err := p.db.Queries.GetPlayerByEosID(context.Background(), eosID)
+func (p *playerService) GetPlayerByEosID(ctx context.Context, eosID string) (*gen.Player, error) {
+	player, err := p.db.Queries.GetPlayerByEosID(ctx, eosID)
 
 	if err != nil {
 		return nil, fmt.Errorf("User not found: %w", err)

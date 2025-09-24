@@ -10,6 +10,7 @@ import (
 
 type UserService interface {
 	CreateUser(ctx context.Context, user models.CreateUser) (int32, error)
+	GetUserBySteamID(ctx context.Context, steamID string) (gen.User, error)
 }
 
 type userService struct {
@@ -28,4 +29,8 @@ func (us *userService) CreateUser(ctx context.Context, user models.CreateUser) (
 		Name:    user.Name,
 		Avatar:  user.Avatar,
 	})
+}
+
+func (us *userService) GetUserBySteamID(ctx context.Context, steamID string) (gen.User, error) {
+	return us.db.Queries.GetUserBySteamID(ctx, steamID)
 }

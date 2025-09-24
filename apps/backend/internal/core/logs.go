@@ -6,6 +6,7 @@ import (
 
 	"github.com/SquadGO/squad-admin-panel/internal/models"
 	"github.com/SquadGO/squad-admin-panel/internal/service"
+	"github.com/SquadGO/squad-admin-panel/internal/state"
 	logs "github.com/SquadGO/squad-logs-go"
 	"github.com/SquadGO/squad-logs-go/logsEvents"
 	"github.com/SquadGO/squad-logs-go/logsTypes"
@@ -13,7 +14,7 @@ import (
 
 func NewLocalLogs(s *service.Service) {}
 
-func NewFTPLogs(s *service.Service) {
+func NewFTPLogs(s *service.Service, appState *state.AppState) {
 	servers, err := s.ServerService.GetServers()
 	if err != nil {
 		slog.Error("Failed get servers logs", slog.Any("err", err))
@@ -67,7 +68,7 @@ func NewFTPLogs(s *service.Service) {
 					Ip:      v.Ip,
 				}
 
-				err := s.LogsService.PlayerConnected(&server.ServerID, data)
+				err := s.LogsService.PlayerConnected(server.ServerID, data)
 				if err != nil {
 					slog.Error("Failed player connected", slog.Any("err", err))
 				}
@@ -81,7 +82,7 @@ func NewFTPLogs(s *service.Service) {
 					Ip:    v.Ip,
 				}
 
-				err := s.LogsService.PlayerDisconnected(&server.ServerID, data)
+				err := s.LogsService.PlayerDisconnected(server.ServerID, data)
 				if err != nil {
 					slog.Error("Failed player disconnected", slog.Any("err", err))
 				}
@@ -97,6 +98,47 @@ func NewFTPLogs(s *service.Service) {
 		fr.Emitter.On(logsEvents.SERVER_TICKRATE, func(i interface{}) {
 			if data, ok := i.(logsTypes.ServerTickrate); ok {
 				slog.Info("TICKRATE", slog.Any("data", data))
+			}
+		})
+
+		fr.Emitter.On(logsEvents.NEW_GAME, func(i interface{}) {
+			if v, ok := i.(logsTypes.NewGame); ok {
+				data := models.NewGame{
+					MapClassname:   v.MapClassname,
+					LayerClassname: v.LayerClassname,
+				}
+
+				err := s.LogsService.NewGame(server.ServerID, data)
+				if err != nil {
+					slog.Error("Failed new game", slog.Any("err", err))
+				}
+			}
+		})
+
+		fr.Emitter.On(logsEvents.ROUND_TICKETS, func(i interface{}) {
+			if v, ok := i.(logsTypes.RoundTickets); ok {
+				data := models.RoundTickets{
+					Team:       v.Team,
+					Subfaction: v.Subfaction,
+					Action:     v.Action,
+					Tickets:    v.Tickets,
+					Layer:      v.Layer,
+					Level:      v.Layer,
+				}
+
+				err := s.LogsService.RoundTickets(server.ServerID, data)
+				if err != nil {
+					slog.Error("Failed round tickets", slog.Any("err", err))
+				}
+			}
+		})
+
+		fr.Emitter.On(logsEvents.ROUND_ENDED, func(i interface{}) {
+			if _, ok := i.(logsTypes.RoundEnded); ok {
+				err := s.LogsService.RoundEnded(server.ServerID)
+				if err != nil {
+					slog.Error("Failed round ended", slog.Any("err", err))
+				}
 			}
 		})
 	}

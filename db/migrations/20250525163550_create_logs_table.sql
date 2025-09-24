@@ -16,15 +16,15 @@ CREATE TABLE logs (
     player_id INT REFERENCES players(player_id) ON DELETE NO ACTION NULL,
     victim_id INT REFERENCES players(player_id) ON DELETE NO ACTION NULL,
     attacker_id INT REFERENCES players(player_id) ON DELETE NO ACTION NULL,
-    player_ip VARCHAR NULL,
-    squad_id VARCHAR NULL,
-    squad_name TEXT NULL,
-    team_id VARCHAR NULL,
-    chat_type chat_type NULL,
-    is_teamkill BOOLEAN NULL,
-    message TEXT NULL,
-    weapon TEXT NULL,
-    map TEXT NULL
+    player_ip VARCHAR,
+    squad_id INT,
+    squad_name TEXT,
+    team_id INT,
+    chat_type chat_type,
+    is_teamkill BOOLEAN,
+    message TEXT,
+    weapon TEXT,
+    map TEXT
 );
 
 

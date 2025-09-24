@@ -1,6 +1,6 @@
--- name: GetUser :one
+-- name: GetUserBySteamID :one
 SELECT * FROM users
-WHERE user_id = $1
+WHERE steam_id = $1
 LIMIT 1;
 
 -- name: InsertUser :one

@@ -9,14 +9,14 @@ import (
 	"context"
 )
 
-const getUser = `-- name: GetUser :one
+const getUserBySteamID = `-- name: GetUserBySteamID :one
 SELECT user_id, role_id, steam_id, name, avatar, created_at FROM users
-WHERE user_id = $1
+WHERE steam_id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, userID int32) (User, error) {
-	row := q.db.QueryRow(ctx, getUser, userID)
+func (q *Queries) GetUserBySteamID(ctx context.Context, steamID string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserBySteamID, steamID)
 	var i User
 	err := row.Scan(
 		&i.UserID,
